@@ -1,0 +1,21 @@
+{
+  "name": "self-index",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.7.4",
+    "tailwindcss": "^4.1.4",
+    "@tailwindcss/vite": "^4.1.4",
+    "@tailwindcss/typography": "^0.5.16"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

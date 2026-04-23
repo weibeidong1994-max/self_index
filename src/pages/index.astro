@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/HeroSection.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import ArticleList from '../components/ArticleList.astro';
+import RoadmapCard from '../components/RoadmapCard.astro';
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const articles = (await getCollection('articles'))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const roadmapItems = (await getCollection('roadmap'))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="个人主页">
+  <!-- Section 1: 个人简介 -->
+  <HeroSection />
+
+  <!-- Section 2: 作品集 -->
+  <section id="projects" class="py-20 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold mb-10 text-gray-900 dark:text-white">作品集</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {projects.map((project) => (
+          <ProjectCard
+            title={project.data.title}
+            description={project.data.description}
+            cover={project.data.cover}
+            slug={project.slug}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: 文章 -->
+  <section id="articles" class="py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-300">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold mb-10 text-gray-900 dark:text-white">文章</h2>
+      <ArticleList articles={articles} />
+    </div>
+  </section>
+
+  <!-- Section 4: 迭代计划 -->
+  <section id="roadmap" class="py-20 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold mb-10 text-gray-900 dark:text-white">作品迭代计划</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {roadmapItems.map((item) => (
+          <RoadmapCard
+            title={item.data.title}
+            description={item.data.description}
+            status={item.data.status}
+            slug={item.slug}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

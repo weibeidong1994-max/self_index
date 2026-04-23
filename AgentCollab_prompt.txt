@@ -1,0 +1,54 @@
+请帮我在当前电脑上部署一个名为 AgentCollab 的 Tauri 2 桌面应用项目。我已经通过 AirDrop 把 agentcollab.tar.gz 传到了这台电脑上。
+
+## 第一步：解压并安装依赖
+
+```bash
+cd /Users/weibeidongm2/Documents/vibecoding/agentcollab
+tar xzf ~/Downloads/agentcollab.tar.gz   # 如果文件在其他位置请调整路径
+cd agentcollab
+npm install
+```
+
+## 第二步：确认开发环境
+
+请检查以下工具是否已安装，如果没有请帮我安装：
+1. **Node.js** (>=18): `node -v`
+2. **Rust** (>=1.77): `rustc --version`，如果没有运行 `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+3. **Xcode Command Line Tools**: `xcode-select --install`
+
+## 第三步：启动开发模式
+
+```bash
+cd /Users/weibeidongm2/Documents/vibecoding/agentcollab
+npm run tauri dev
+```
+
+首次编译 Rust 大约需要 5-10 分钟，之后热更新会很快。如果编译成功，应用窗口会自动弹出。
+
+## 第四步（可选）：构建正式版
+
+```bash
+npm run tauri build
+```
+
+构建产物在 `src-tauri/target/release/bundle/macos/agentcollab.app`，可拖到 /Applications 使用。
+
+## 如果遇到问题
+
+1. **npm install 失败**: 尝试 `rm -rf node_modules package-lock.json && npm install`
+2. **Rust 编译失败**: 运行 `rustup update` 更新工具链
+3. **Tauri CLI 找不到**: `npm install @tauri-apps/cli@latest --save-dev`
+4. **portable-pty 编译报错**: 确认 Xcode Command Line Tools 已安装
+
+## 项目简介
+
+AgentCollab 是一个本地优先的多 Agent 协作工作台（"上下文管家"），核心功能：
+- 三栏布局：项目/对话列表 | 项目记忆 | 终端面板
+- 内置 PTY 终端，可直接启动 Claude Code / KimiCode / Hermes 等 CLI Agent
+- 自动从终端输出中蒸馏上下文（支持 LLM 增强蒸馏，默认使用 GLM API）
+- 跨对话记忆聚合，按类别（决策/实现/变量/反馈/通用）组织
+- 项目绑定实际文件夹，context.md 保存在项目目录的 .agenthub/ 下
+- 支持同步 Kimi/Claude 的历史日志并按项目路径过滤
+- 可拖拽面板宽度、项目软/硬删除
+
+技术栈：Tauri 2 + React 19 + TypeScript + Rust (portable-pty) + SQLite + xterm.js + GLM API
