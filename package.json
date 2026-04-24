@@ -1,21 +1,24 @@
 {
-  "name": "self-index",
-  "type": "module",
+  "name": "self_index",
   "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weibeidong1994-max/self_index.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/weibeidong1994-max/self_index/issues"
+  },
+  "homepage": "https://github.com/weibeidong1994-max/self_index#readme",
   "dependencies": {
-    "astro": "^5.7.4",
-    "tailwindcss": "^4.1.4",
-    "@tailwindcss/vite": "^4.1.4",
-    "@tailwindcss/typography": "^0.5.16"
-  },
-  "devDependencies": {
-    "typescript": "^5.8.3"
+    "gray-matter": "^4.0.3",
+    "markdown-it": "^14.1.1"
   }
 }

@@ -1,0 +1,349 @@
+const fs = require('fs');
+const path = require('path');
+const matter = require('gray-matter');
+const MarkdownIt = require('markdown-it');
+
+const md = new MarkdownIt({ html: true, breaks: true });
+const CONTENT_DIR = '../self_index_astro_backup/src/content';
+
+function layout(title, content) {
+  return `<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title ? title + ' — ' : ''}AI PM</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          primary: '#2563eb',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+  .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+  .prose p { margin-bottom: 1rem; line-height: 1.75; }
+  .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+  .prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+  .prose li { margin-bottom: 0.25rem; }
+  .prose code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+  .dark .prose code { background: #374151; }
+  .prose pre { background: #1f2937; color: #f3f4f6; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; }
+  .prose pre code { background: transparent; padding: 0; }
+  .prose a { color: #2563eb; text-decoration: underline; }
+  .dark .prose a { color: #60a5fa; }
+  .prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; margin-bottom: 1rem; font-style: italic; }
+  .dark .prose blockquote { border-left-color: #4b5563; }
+</style>
+<script>
+  (function() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved === 'dark' || (!saved && prefersDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  })();
+</script>
+</head>
+<body class="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="/" class="text-lg font-bold text-gray-900 dark:text-white hover:text-primary transition-colors">AI PM</a>
+    <nav class="hidden md:flex items-center gap-8">
+      <a href="/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">简介</a>
+      <a href="/projects/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">作品集</a>
+      <a href="/articles/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">文章</a>
+      <a href="/roadmap/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">迭代计划</a>
+      <button id="theme-toggle" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换主题">
+        <svg id="sun-icon" class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg id="moon-icon" class="block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </nav>
+    <div class="flex md:hidden items-center gap-2">
+      <button id="theme-toggle-mobile" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换主题">
+        <svg class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+      <button id="menu-toggle" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="菜单">
+        <svg id="menu-open" class="block" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="menu-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4 space-y-3">
+    <a href="/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">简介</a>
+    <a href="/projects/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">作品集</a>
+    <a href="/articles/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">文章</a>
+    <a href="/roadmap/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">迭代计划</a>
+  </div>
+</header>
+
+<main class="flex-1 pt-16">
+${content}
+</main>
+
+<footer class="border-t border-gray-200 dark:border-gray-800 py-8 px-4">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <p class="text-sm text-gray-500 dark:text-gray-400">© 2026 AI PM. All rights reserved.</p>
+    <div class="flex items-center gap-4">
+      <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" aria-label="GitHub">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      </a>
+      <a href="mailto:hello@example.com" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" aria-label="Email">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+  document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+  document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuOpen = document.getElementById('menu-open');
+  const menuClose = document.getElementById('menu-close');
+  menuToggle?.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+    menuOpen.classList.toggle('hidden');
+    menuClose.classList.toggle('hidden');
+  });
+</script>
+
+</body>
+</html>`;
+}
+
+function readCollection(dir) {
+  const fullDir = path.join(CONTENT_DIR, dir);
+  if (!fs.existsSync(fullDir)) return [];
+  const files = fs.readdirSync(fullDir).filter(f => f.endsWith('.md'));
+  return files.map(f => {
+    const raw = fs.readFileSync(path.join(fullDir, f), 'utf-8');
+    const parsed = matter(raw);
+    return {
+      slug: f.replace(/\.md$/, ''),
+      ...parsed.data,
+      html: md.render(parsed.content)
+    };
+  }).sort((a, b) => {
+    if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+    return new Date(b.date) - new Date(a.date);
+  });
+}
+
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+function writeFile(filePath, content) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, content, 'utf-8');
+}
+
+// ===================== 首页 =====================
+const projects = readCollection('projects');
+const articles = readCollection('articles');
+const roadmaps = readCollection('roadmap');
+
+const homeContent = `
+<section class="py-20 px-4 sm:px-6 text-center">
+  <div class="max-w-4xl mx-auto">
+    <div class="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl font-bold shadow-lg">
+      <img src="/images/avatar.svg" alt="头像" class="w-full h-full rounded-full object-cover">
+    </div>
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-gray-900 dark:text-white">商业化产品经理 · AI-native 产品</h1>
+    <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+      专注于 AI 产品商业化落地，深耕 LLM 应用编排、Agent 系统设计与对话式交互体验。
+      致力于让前沿 AI 技术转化为可感知、可落地的产品价值。
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="/projects/" class="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors">查看作品</a>
+      <a href="/articles/" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors">阅读文章</a>
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-800/50">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold mb-10 text-gray-900 dark:text-white">作品集</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      ${projects.map(p => `
+      <a href="/projects/${p.slug}/" class="group block rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-gray-800">
+        <div class="aspect-video overflow-hidden">
+          <img src="${p.cover}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">${p.title}</h3>
+          <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">${p.description}</p>
+        </div>
+      </a>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold mb-10 text-gray-900 dark:text-white">文章</h2>
+    <div class="space-y-6">
+      ${articles.map(a => `
+      <a href="/articles/${a.slug}/" class="block p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">${a.title}</h3>
+          <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">${a.date}</span>
+        </div>
+        <p class="text-gray-600 dark:text-gray-300 text-sm">${a.summary}</p>
+        <div class="flex flex-wrap gap-2 mt-3">
+          ${(a.tags || []).map(t => `<span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">${t}</span>`).join('')}
+        </div>
+      </a>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-800/50">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold mb-10 text-gray-900 dark:text-white">迭代计划</h2>
+    <div class="space-y-4">
+      ${roadmaps.map(r => {
+        const statusColors = {
+          '规划中': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
+          '进行中': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200',
+          '已完成': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
+        };
+        const statusClass = statusColors[r.status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+        return `
+      <a href="/roadmap/${r.slug}/" class="block p-5 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${r.title}</h3>
+          <span class="text-xs px-2 py-1 rounded-full ${statusClass} w-fit">${r.status}</span>
+        </div>
+        <p class="text-gray-600 dark:text-gray-300 text-sm">${r.description}</p>
+      </a>`;
+      }).join('')}
+    </div>
+  </div>
+</section>
+`;
+
+writeFile('index.html', layout('', homeContent));
+
+// ===================== 列表页 =====================
+function listPage(title, items, type) {
+  let cards = '';
+  if (type === 'projects') {
+    cards = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">${items.map(p => `
+      <a href="/projects/${p.slug}/" class="group block rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-gray-800">
+        <div class="aspect-video overflow-hidden">
+          <img src="${p.cover}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">${p.title}</h3>
+          <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">${p.description}</p>
+        </div>
+      </a>`).join('')}</div>`;
+  } else if (type === 'articles') {
+    cards = `<div class="space-y-6">${items.map(a => `
+      <a href="/articles/${a.slug}/" class="block p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">${a.title}</h3>
+          <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">${a.date}</span>
+        </div>
+        <p class="text-gray-600 dark:text-gray-300 text-sm">${a.summary}</p>
+        <div class="flex flex-wrap gap-2 mt-3">
+          ${(a.tags || []).map(t => `<span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">${t}</span>`).join('')}
+        </div>
+      </a>`).join('')}</div>`;
+  } else if (type === 'roadmap') {
+    cards = `<div class="space-y-4">${items.map(r => {
+      const statusColors = {
+        '规划中': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
+        '进行中': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200',
+        '已完成': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
+      };
+      const statusClass = statusColors[r.status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      return `
+      <a href="/roadmap/${r.slug}/" class="block p-5 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${r.title}</h3>
+          <span class="text-xs px-2 py-1 rounded-full ${statusClass} w-fit">${r.status}</span>
+        </div>
+        <p class="text-gray-600 dark:text-gray-300 text-sm">${r.description}</p>
+      </a>`;
+    }).join('')}</div>`;
+  }
+
+  return layout(title, `
+<section class="py-12 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-10 text-gray-900 dark:text-white">${title}</h1>
+    ${cards}
+  </div>
+</section>
+  `);
+}
+
+writeFile('projects/index.html', listPage('作品集', projects, 'projects'));
+writeFile('articles/index.html', listPage('文章', articles, 'articles'));
+writeFile('roadmap/index.html', listPage('迭代计划', roadmaps, 'roadmap'));
+
+// ===================== 详情页 =====================
+function detailPage(item, type) {
+  let meta = '';
+  if (type === 'projects') {
+    meta = `<div class="flex flex-wrap gap-2 mb-6">${(item.tags || []).map(t => `<span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">${t}</span>`).join('')}</div>`;
+  } else if (type === 'articles') {
+    meta = `<div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6"><span>${item.date}</span><div class="flex gap-2">${(item.tags || []).map(t => `<span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">${t}</span>`).join('')}</div></div>`;
+  } else if (type === 'roadmap') {
+    const statusColors = {
+      '规划中': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200',
+      '进行中': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200',
+      '已完成': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
+    };
+    const statusClass = statusColors[item.status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    meta = `<div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6"><span>${item.date}</span><span class="text-xs px-2 py-1 rounded-full ${statusClass}">${item.status}</span></div>`;
+  }
+
+  const coverImage = item.cover ? `<img src="${item.cover}" alt="${item.title}" class="w-full aspect-video object-cover rounded-xl shadow-lg mb-8">` : '';
+
+  return layout(item.title, `
+<section class="py-12 px-4 sm:px-6">
+  <div class="max-w-3xl mx-auto">
+    <a href="/${type}/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block">← 返回${type === 'projects' ? '作品集' : type === 'articles' ? '文章列表' : '迭代计划'}</a>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">${item.title}</h1>
+    ${meta}
+    ${coverImage}
+    <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+      ${item.html}
+    </div>
+  </div>
+</section>
+  `);
+}
+
+projects.forEach(p => writeFile(`projects/${p.slug}/index.html`, detailPage(p, 'projects')));
+articles.forEach(a => writeFile(`articles/${a.slug}/index.html`, detailPage(a, 'articles')));
+roadmaps.forEach(r => writeFile(`roadmap/${r.slug}/index.html`, detailPage(r, 'roadmap')));
+
+// ===================== 静态文件 =====================
+fs.writeFileSync('.nojekyll', '', 'utf-8');
+fs.writeFileSync('CNAME', 'www.bei.red\n', 'utf-8');
+
+console.log('✅ 静态站点生成完成');
+console.log(`   首页: index.html`);
+console.log(`   作品: ${projects.length} 个`);
+console.log(`   文章: ${articles.length} 篇`);
+console.log(`   计划: ${roadmaps.length} 个`);
