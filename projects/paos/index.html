@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAOS 服务 — AI PM</title>
+<title>PAOS — 个人 AI 操作系统 — AI PM</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -82,16 +82,40 @@
 <section class="py-12 px-4 sm:px-6">
   <div class="max-w-3xl mx-auto">
     <a href="/projects/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block">← 返回作品集</a>
-    <h1 class="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">PAOS 服务</h1>
-    <div class="flex flex-wrap gap-2 mb-6"><span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">AI</span><span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">后端服务</span><span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">Prompt</span></div>
-    <img src="/images/projects/paos-cover.svg" alt="PAOS 服务" class="w-full aspect-video object-cover rounded-xl shadow-lg mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">PAOS — 个人 AI 操作系统</h1>
+    <div class="flex flex-wrap gap-2 mb-6"><span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">AI</span><span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">知识管理</span><span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">本地优先</span></div>
+    <img src="/images/projects/paos-cover.svg" alt="PAOS — 个人 AI 操作系统" class="w-full aspect-video object-cover rounded-xl shadow-lg mb-8">
     <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
       <h2>项目概述</h2>
-<p>PAOS（Prompt &amp; Agent Orchestration Service）是一个面向 AI 应用的统一编排服务层。它解决了多模型环境下的调度复杂性，为开发者提供了一致的 API 接口来管理 Prompt 模板、调用不同厂商的 LLM 服务，并实现请求路由与负载均衡。</p>
+<p>PAOS（Personal AI OS）是一个<strong>个人 AI 操作系统</strong>，以本地计算为中枢，将碎片化信息自动提纯为结构化知识，并支持自动生成文章。</p>
+<p>它解决了个人信息和知识碎片化的问题——从社交媒体、RSS、文章等渠道获取的内容散落各处，难以系统性沉淀和复用。</p>
 <h2>核心能力</h2>
-<p>在服务设计上，PAOS 采用了插件化的架构，每个模型 provider 都可以独立接入。系统内置了 Prompt 版本管理、A/B 测试、流量染色等高级功能，让产品团队能够在不改动业务代码的前提下，灵活调整 AI 策略。同时，PAOS 还提供了完整的调用链路追踪与成本分析报表，帮助企业精准掌控 AI 投入产出比。</p>
-<h2>应用场景</h2>
-<p>目前 PAOS 已经支撑了内部多个产品的 AI 能力底座，日均处理请求超过 50 万次。无论是简单的单轮问答，还是复杂的多轮对话与工具调用，PAOS 都能提供稳定、低延迟的服务保障。</p>
+<p><strong>信息提纯 Pipeline</strong></p>
+<ul>
+<li>自动将原始输入转为带摘要和标签的结构化知识</li>
+<li>支持自然语言、RSS、OpenClaw、Web 搜索等多种输入源</li>
+<li>LLM 摘要 + 标签提取 + 关联分析，失败时自动进入 Fallback 队列</li>
+</ul>
+<p><strong>三重存储体系</strong></p>
+<ul>
+<li>原始输入层：<code>data/raw/</code> + SQLite</li>
+<li>提纯知识层：<code>data/processed/</code> + SQLite</li>
+<li>生成输出层：<code>data/output/</code>（文章、网站等）</li>
+</ul>
+<p><strong>Skills 技能系统</strong></p>
+<ul>
+<li>可插拔的文章生成技能：khazix-writer、md2wechat、onepager、smart_flowchart</li>
+<li>技能驱动输出，一键生成不同风格的内容</li>
+</ul>
+<p><strong>MCP Server</strong></p>
+<ul>
+<li>内置 MCP Server，暴露 12 个工具供外部 Agent 调用</li>
+<li>支持 stdio 和 SSE 两种模式</li>
+</ul>
+<h2>技术栈</h2>
+<p>Python · FastAPI · SQLite · YAML 配置中心 · 异步 Pipeline</p>
+<h2>开源地址</h2>
+<p>https://github.com/weibeidong1994-max/paos</p>
 
     </div>
   </div>
