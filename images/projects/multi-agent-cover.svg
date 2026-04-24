@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="multi-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#multi-grad)" />
+  <text x="320" y="175" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">多 Agent 协作系统</text>
+  <text x="320" y="220" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="rgba(255,255,255,0.8)" text-anchor="middle" dominant-baseline="middle">多智能体协同完成复杂任务</text>
+</svg>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多 Agent 协作系统 v1.0 正式版 — AI PM</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          primary: '#2563eb',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+  .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+  .prose p { margin-bottom: 1rem; line-height: 1.75; }
+  .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+  .prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+  .prose li { margin-bottom: 0.25rem; }
+  .prose code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+  .dark .prose code { background: #374151; }
+  .prose pre { background: #1f2937; color: #f3f4f6; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; }
+  .prose pre code { background: transparent; padding: 0; }
+  .prose a { color: #2563eb; text-decoration: underline; }
+  .dark .prose a { color: #60a5fa; }
+  .prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; margin-bottom: 1rem; font-style: italic; }
+  .dark .prose blockquote { border-left-color: #4b5563; }
+</style>
+<script>
+  (function() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved === 'dark' || (!saved && prefersDark);
+    document.documentElement.classList.toggle('dark', isDark);
+  })();
+</script>
+</head>
+<body class="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="/" class="text-lg font-bold text-gray-900 dark:text-white hover:text-primary transition-colors">AI PM</a>
+    <nav class="hidden md:flex items-center gap-8">
+      <a href="/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">简介</a>
+      <a href="/projects/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">作品集</a>
+      <a href="/articles/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">文章</a>
+      <a href="/roadmap/" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">迭代计划</a>
+      <button id="theme-toggle" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换主题">
+        <svg id="sun-icon" class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg id="moon-icon" class="block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </nav>
+    <div class="flex md:hidden items-center gap-2">
+      <button id="theme-toggle-mobile" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换主题">
+        <svg class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+      <button id="menu-toggle" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="菜单">
+        <svg id="menu-open" class="block" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="menu-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4 space-y-3">
+    <a href="/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">简介</a>
+    <a href="/projects/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">作品集</a>
+    <a href="/articles/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">文章</a>
+    <a href="/roadmap/" class="block text-sm font-medium text-gray-600 dark:text-gray-300">迭代计划</a>
+  </div>
+</header>
+
+<main class="flex-1 pt-16">
+
+<section class="py-12 px-4 sm:px-6">
+  <div class="max-w-3xl mx-auto">
+    <a href="/roadmap/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block">← 返回迭代计划</a>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">多 Agent 协作系统 v1.0 正式版</h1>
+    <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6"><span>Sat Feb 28 2026 08:00:00 GMT+0800 (中国标准时间)</span><span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">已完成</span></div>
+    
+    <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+      <h2>计划概述</h2>
+<p>多 Agent 协作系统 v1.0 正式版聚焦于生产环境的稳定性和可观测性提升。在 Preview 版本的基础上，正式版引入了协作拓扑的实时可视化监控，让开发者能够直观地看到 Agent 之间的消息流转和任务分配情况。</p>
+<h2>主要特性</h2>
+<p>新增三种预设协作模式：专家评审团（多个专业 Agent 对同一问题独立作答后汇总）、接力研发（前后端 Agent 依次完成代码编写与审查）、智能客服（问题分类 Agent 将用户请求路由给对应的业务 Agent）。可观测性方面，v1.0 提供了完整的对话审计日志、Agent 决策链路回放和性能瓶颈分析工具。</p>
+<h2>发布状态</h2>
+<p>v1.0 已于 2026 年 2 月底正式发布，文档与示例均已同步更新。后续版本将重点优化长时任务的断点续传与容错恢复能力。</p>
+
+    </div>
+  </div>
+</section>
+  
+</main>
+
+<footer class="border-t border-gray-200 dark:border-gray-800 py-8 px-4">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <p class="text-sm text-gray-500 dark:text-gray-400">© 2026 AI PM. All rights reserved.</p>
+    <div class="flex items-center gap-4">
+      <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" aria-label="GitHub">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      </a>
+      <a href="mailto:hello@example.com" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" aria-label="Email">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+  document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+  document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuOpen = document.getElementById('menu-open');
+  const menuClose = document.getElementById('menu-close');
+  menuToggle?.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+    menuOpen.classList.toggle('hidden');
+    menuClose.classList.toggle('hidden');
+  });
+</script>
+
+</body>
+</html>
