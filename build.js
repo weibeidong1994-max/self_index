@@ -4,7 +4,7 @@ const matter = require('gray-matter');
 const MarkdownIt = require('markdown-it');
 
 const md = new MarkdownIt({ html: true, breaks: true });
-const CONTENT_DIR = '../self_index_astro_backup/src/content';
+const CONTENT_DIR = './content';
 
 function layout(title, content) {
   return `<!DOCTYPE html>
